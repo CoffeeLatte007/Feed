@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+       <mapper namespace="com.feed.mapper.FeedModelMapper">
+  <select id="getFeedList" parameterType="java.lang.Integer" resultType="com.feed.model.FeedModel">
+      SELECT
+         u.id AS userId ,
+         u.username AS username,
+         u.head_url AS headUrl,
+         i.url AS imageUrl,
+         i.id AS imageId,
+         i.created_date AS createTime
+         FROM
+         image i,user u
+        WHERE i.id = #{uuid}
+         AND i.user_id = u.id
+  </select>
+</mapper>

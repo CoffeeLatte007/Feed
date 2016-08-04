@@ -3,10 +3,14 @@ package com.feed.controller;
 import com.feed.FeedConfig;
 import com.feed.model.MyResult;
 import com.feed.service.FollowService;
+import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,37 +22,60 @@ import java.util.List;
 public class FollowController {
     @Autowired
     FollowService followService;
-    @RequestMapping(value = "/follow",method = RequestMethod.POST)
+    @RequestMapping(value = "/follow")
     @ResponseBody
-    public MyResult followingSomeone(String userid,String currentuserid){
+    public MappingJacksonValue followingSomeone(String userid,String currentuserid,String callback){
         followService.follow(userid,currentuserid);
-        return MyResult.ok();
+        MyResult result = MyResult.ok();
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+        mappingJacksonValue.setJsonpFunction(callback);
+        return mappingJacksonValue;
     }
     @RequestMapping("{userid:\\d+}/followers")
     @ResponseBody
-    public MyResult viewFollowers(@PathVariable String userid ,@RequestParam(value = "page",required = false,defaultValue = "1")Integer page){
+    public MappingJacksonValue viewFollowers(@PathVariable String userid ,@RequestParam(value = "page",required = false,defaultValue = "1")Integer page,String callback){
+        MyResult result;
         if (page<=0){
-            return new MyResult().build(400,"400","长度不能小于1");
+            result =new MyResult().build(400,"400","长度不能小于1");
+            MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+            mappingJacksonValue.setJsonpFunction(callback);
+            return mappingJacksonValue;
         }
-        return followService.viewFollow(userid,page, FeedConfig.followers);
+        result =followService.viewFollow(userid, page, FeedConfig.followers);
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+        mappingJacksonValue.setJsonpFunction(callback);
+        return mappingJacksonValue;
     }
     @RequestMapping("{userid:\\d+}/following")
     @ResponseBody
-    public MyResult viewFollowing(@PathVariable String userid ,@RequestParam(value = "page",required = false,defaultValue = "1")Integer page){
+    public MappingJacksonValue viewFollowing(@PathVariable String userid ,@RequestParam(value = "page",required = false,defaultValue = "1")Integer page,String callback){
+        MyResult result;
         if (page<=0){
-            return new MyResult().build(400,"400","长度不能小于1");
+            result =new MyResult().build(400,"400","长度不能小于1");
+            MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+            mappingJacksonValue.setJsonpFunction(callback);
+            return mappingJacksonValue;
         }
-        return followService.viewFollow(userid,page, FeedConfig.following);
+        result =followService.viewFollow(userid,page, FeedConfig.following);
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+        mappingJacksonValue.setJsonpFunction(callback);
+        return mappingJacksonValue;
     }
     @RequestMapping("/numsFollow/{userid:\\d+}")
     @ResponseBody
-    public MyResult numsFollow(@PathVariable String userid){
-        return followService.numsFollow(userid);
+    public MappingJacksonValue numsFollow(@PathVariable String userid,String callback){
+        MyResult result =followService.numsFollow(userid);
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+        mappingJacksonValue.setJsonpFunction(callback);
+        return mappingJacksonValue;
     }
     @RequestMapping("/{currentuserid:\\d+}/isfollowing")
     @ResponseBody
-    public MyResult isFollowing(@PathVariable String currentuserid,@RequestParam(value = "useruuid",required = true)String useruuid){
+    public MappingJacksonValue isFollowing(@PathVariable String currentuserid,@RequestParam(value = "useruuid",required = true)String useruuid,String callback){
         List<String> uidlist = Arrays.asList(useruuid.split(","));
-        return followService.isFollowing(currentuserid,uidlist);
+        MyResult result =followService.isFollowing(currentuserid,uidlist);
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
+        mappingJacksonValue.setJsonpFunction(callback);
+        return mappingJacksonValue;
     }
 }
